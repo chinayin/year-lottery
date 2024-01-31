@@ -1,0 +1,338 @@
+/*@font-face {*/
+/*    font-family: myfont;*/
+/*    src: url('js/xk.ttf');*/
+/*}*/
+
+/*全局大小*/
+body, html {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+}
+
+/*背景样式*/
+.wall {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    background-image: url(../img/icon-wall.jpg);
+    overflow: hidden;
+    background-color: #121936;
+    background-size: 100% 100%;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+/*显示抽奖结果的样式*/
+.result {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(92, 92, 92, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+
+    background-image: url("../img/alert.png");
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+
+
+}
+
+
+/*显示抽奖结果的样式*/
+.result2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-image: url("../img/alert2.png");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+/*显示抽奖结果的样式*/
+.result2 .list {
+    width: 85vw;
+    height: 70vh;
+    margin-top: 20vh;
+    display: flex;
+}
+
+
+/*显示抽奖结果的样式*/
+.result2 .list ul {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: center;
+    justify-content: space-between;
+}
+
+/*显示抽奖结果的样式*/
+.result2 .list ul li {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 20px 10px;
+    background-image: url("../img/bg.png");
+    background-size: 100% 100%;
+}
+
+
+/*显示抽奖结果的样式*/
+.result2 .list ul li img {
+    width: 50%;
+    margin: 10px 25%;
+}
+
+/*显示抽奖结果的样式*/
+.result2 .list ul li .title {
+    width: 100%;
+    margin-top: 15px;
+    color: #a90808;
+    font-size: 28px;
+}
+
+/*显示抽奖结果的样式*/
+.result2 .list ul li .footer {
+    width: 80%;
+    background-image: url("../img/bg2.png");
+    margin-bottom: 0;
+    background-size: 100% 100%;
+    color: #ffffff;
+    font-size: 25px;
+    padding: 3px;
+}
+
+
+/*结果内部元素的布局*/
+.result .display {
+    width: 50%;
+    height: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    flex-wrap: wrap;
+}
+
+/*奖品图片样式*/
+.result .display img {
+
+    width: 25%;
+    margin-top: 20%;
+    margin-left: 39.5%;
+    margin-right: 40.5%;
+
+}
+
+/*中奖文字*/
+.result .display .down {
+    margin-top: 3%;
+    margin-right: 0.5%;
+}
+
+/*奖品名字*/
+.result .display .down .item1 {
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+/*中奖人的样式*/
+.result .display .down .item2 {
+    font-size: 25px;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #fff100;
+    background-color: red;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+/**/
+button, input, optgroup, select, textarea {
+    color: inherit;
+    font: inherit;
+    margin: 0;
+    border: none;
+}
+
+button {
+    overflow: visible;
+}
+
+button, select {
+    text-transform: none;
+}
+
+button, html input[type=button], input[type=reset], input[type=submit] {
+    -webkit-appearance: button;
+    cursor: pointer;
+}
+
+.pure-button {
+    display: inline-block;
+    zoom: 1;
+    line-height: normal;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    -webkit-user-drag: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.pure-button {
+    font-family: inherit;
+    font-size: 100%;
+    padding: .5em 1em;
+    color: #444;
+    color: rgba(0, 0, 0, .8);
+    border: 0 rgba(0, 0, 0, 0);
+    background-color: #E6E6E6;
+    text-decoration: none;
+    border-radius: 2px;
+    position: relative;
+    z-index: 9999;
+}
+
+.pure-button:focus {
+    outline: 0
+}
+
+.pure-button-hover, .pure-button:hover, .pure-button:focus {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#1a000000', GradientType=0);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(transparent), color-stop(40%, rgba(0, 0, 0, .05)), to(rgba(0, 0, 0, .1)));
+    background-image: -webkit-linear-gradient(transparent, rgba(0, 0, 0, .05) 40%, rgba(0, 0, 0, .1));
+    background-image: -moz-linear-gradient(top, rgba(0, 0, 0, .05) 0, rgba(0, 0, 0, .1));
+    background-image: -o-linear-gradient(transparent, rgba(0, 0, 0, .05) 40%, rgba(0, 0, 0, .1));
+    background-image: linear-gradient(transparent, rgba(0, 0, 0, .05) 40%, rgba(0, 0, 0, .1));
+}
+
+
+/*底部按钮的样式*/
+.button-success, .button-error, .button-warning, .button-secondary {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.button-success {
+    background: rgb(28, 184, 65);
+}
+
+.button-error {
+    background: rgb(202, 60, 60);
+}
+
+.button-warning {
+    background: rgb(223, 117, 20);
+}
+
+.button-secondary {
+    background: rgb(66, 184, 221);
+}
+
+.tools {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    text-align: center;
+}
+
+.tools .pure-button {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 0;
+    text-align: center;
+    width: 50px;
+}
+
+
+/*画布滤镜用于模糊显示*/
+.mask {
+    -webkit-filter: blur(5px);
+    filter: blur(5px);
+}
+
+/*过渡效果*/
+#main {
+    -webkit-transition: all 1s;
+    transition: all 1s;
+}
+
+
+/*vue 的淡出淡入特效*/
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 1s;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */
+{
+    opacity: 0;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+
+/*过渡效果*/
+.result ul {
+    margin-top: 35%;
+    margin-right: 2%;
+    display: block;
+    height: 50vh;
+    text-align: left;
+}
+
+.result ul span {
+    font-weight: bold;
+    margin-right: 25px;
+    font-size: 25px;
+}
+
+.result ul li {
+    display: block;
+    font-size: 24px;
+    margin-top: 3px;
+}
+
+/*对联*/
+.result .couplet {
+    font-family: myfont;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    width: 100px;
+    height: 70vh;
+    background-color: #d90505;
+    border-radius: 1px;
+    box-shadow: rgba(255, 241, 0, 0.38) 1px 1px 10px 1px, rgba(255, 241, 0, 0.38) -1px -1px 10px 1px;
+    color: #fff100;
+    font-size: 70px;
+}

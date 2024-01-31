@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="screen-orientation" content="portrait">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0"/>
+    <title>年会抽奖小程序</title>
+    <meta name="keywords" content="抽奖H5网页,年会抽奖程序,炫酷的抽奖网页"/>
+    <meta name="description" content="一个用于年会抽奖的炫酷网页！"/>
+    <link href="assets/img/logo.ico" rel="icon">
+    <link href="assets/layui/css/layui.css" type="text/css" rel="stylesheet"/>
+    <link href="assets/css/style.css" type="text/css" rel="stylesheet"/>
+    <script src="assets/js/vue-2.6.14.js" type="application/javascript"></script>
+    <script src="assets/js/zepto-1.2.0.min.js" type="application/javascript"></script>
+    <script src="assets/layui/layui.js" type="application/javascript"></script>
+    <script src="assets/js/tagcanvas.js" type="application/javascript"></script>
+    <script src="data/config.js" type="application/javascript"></script>
+</head>
+<body>
+
+<!--主容器，显示词云-->
+<div id="main" class="wall">
+</div>
+
+<!--显示右下角的工具按钮-->
+<div id="app" class="tools" v-cloak>
+    <button @click="toggle" class="pure-button" :class="running!=1?'button-error':'button-secondary'">
+        <!--显示抽奖结果时，显示继续-->
+        {{showResult ? "继续" : status[running]}}
+    </button>
+    <button class="pure-button button-success" @click="toggleFullScreen">{{fullState}}</button>
+    <!--显示抽奖结果-->
+    <button class="pure-button button-secondary" @click="showList">结果</button>
+    <button class="pure-button button-warning" style="font-family: myfont;" @click="reset">重置</button>
+
+    <!--显示抽奖的结果-->
+    <transition name="fade">
+        <!--展示页面-->
+        <div id="result" class="result" v-if="running == 2">
+            <div class="display" v-if="!showResult">
+                <!--输出抽奖结果-->
+                <img :src="prizes[position].url"/>
+                <div class="down">
+                    <div class="item1">{{prizes[position].prize + " " + prizes[position].name}}</div>
+                    <div class="item2">{{prizes[position].person}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!--结果页面-->
+        <div class="result2" v-if="showResult">
+            <div class="list">
+                <!--循环输出结果-->
+                <ul>
+                    <li v-for="(item,index) in prizesRverese" :key="index"
+                        :style="{width: item.level == 1?'25%':item.level == 2?'20%':'12%'}">
+                        <div class="title" :style="{fontSize:item.level == 1?'33px':'28px'}">{{item.name}}</div>
+                        <img :src="item.url">
+                        <div class="footer">{{item.person == "" ? item.prize : item.person}}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </transition>
+</div>
+<script type="text/javascript">
+    /*页面加载完毕之后*/
+    (function () {
+        /*画布DOM*/
+        var canvas;
+        let temp = [];
+        member.forEach(function (item, index) {
+            temp.push({name: item, index: index});
+        })
+        member = temp;
+        /*清除抽奖记录*/
+        localStorage.clear();
+        /*监控窗口大小变化，及时重绘canvas*/
+        window.onresize = function () {
+            /*窗口大小发生变化*/
+            /*移除词云*/
+            $("#myCanvas").remove();
+            /*移除滤镜*/
+            $('#main').removeClass('mask');
+            /*重新创建词云*/
+            createCanvas(vm);
+            /*将抽奖状态归0*/
+            vm.running = 0;
+        }
+        /*从本地存储获取当前被选中过的人员名单*/
+        var choosed = JSON.parse(localStorage.getItem('choosed')) || {};
+        /*词云的旋转速度*/
+        var speed = function () {
+            return [0.2, 0.08];
+        };
+        /*创建名单列表*/
+        var createHTML = function (self) {
+            /*创建词云列表*/
+            var html = ['<ul>'];
+            /*遍历存储好的人员名单*/
+            let max = member.length;
+            member.forEach(function (item, index) {
+                item.index = index;
+
+                /*  if(index == 2){
+
+                      /!*写入不同的奖品图片*!/
+                      if(self.currentLevel == 0){
+
+                          html.push('<li><a href="#"><img style="width: 50px" src="img/1.jpg"/></a></li>');
+                      }
+                  }
+
+                  if(index == Math.ceil(max/2)){
+
+                      /!*写入不同的奖品图片*!/
+                      if(self.currentLevel <= 2 && self.currentLevel>=0) {
+                          html.push('<li><a href="#"><img style="width: 50px" src="img/2.jpg"/></a></li>');
+                      }
+
+                  }*/
+
+                /*   if(index == (max-2)){
+
+                    /!*写入不同的奖品图片*!/
+                    if(self.currentLevel <= 3 && self.currentLevel>=0) {
+                        html.push('<li><a href="#"><img style="width:  50px" src="img/3.jpg"/></a></li>');
+                    }
+
+                }*/
+
+                /*如何已经被抽奖抽中了，显示黄色的名字*/
+                console.log(!choosed[item.name]);
+                if (!choosed[item.name]) {
+                    html.push('<li><a href="#">' + item.name + '</a></li>');
+                }
+            });
+            html.push('</ul>');
+            return html.join('');
+        };
+
+        /*创建并重绘画布*/
+        var createCanvas = function (self) {
+            /*创建画布*/
+            canvas = document.createElement('canvas');
+            /*设置好ID*/
+            canvas.id = 'myCanvas';
+            /*设置画布的大小*/
+            canvas.width = document.body.offsetWidth;
+            /*设置画布的高度*/
+            canvas.height = document.body.offsetHeight;
+            /*将画布添加到网页渲染*/
+            document.getElementById('main').appendChild(canvas);
+            /*设置画布的内部html*/
+            canvas.innerHTML = createHTML(self);
+            /*词云开始绘制*/
+            /*第一个参数是画布的dom
+            * 第二个参数是 词云的列表dom（ul、li），如果列表是直接插入canvas 的innerhtml则无需指定
+            * */
+            TagCanvas.Start('myCanvas', '', {
+                textColour: "#FFD700",
+                initial: speed(),
+                textHeight: 42,
+                zoom: 1.05,
+                dragControl: true
+            });
+        }
+
+        /*
+        * @抽奖算法
+        *
+        * @第一步：通过过滤（filter）把中过奖的人排除
+        * @第二步：遍历所有剩下的名字，随机生成一个分数对象。与代表每个人的对象合并
+        * @第三步：从0开始，截取指定的抽奖数量的元素
+        * @第四步：标记被抽中的人员，改变其显示的颜色。
+        *
+        * @最后，将被抽中的人员名单对象，json序列化存入localstorage对象
+        * */
+        var lottery = function (count) {
+            /*获取画布内a标签*/
+            var list = canvas.getElementsByTagName('a');
+            var color = 'yellow';
+            var ret = member
+                /*过滤成员，如果没有在已被抽中的名单内，则返回该元素组成新数组*/
+                .filter(function (m, index) {
+                    /*添加索引*/
+                    m.index = index;
+                    return !choosed[m.name];
+                })
+                /*遍历元素进行处理*/
+                /*m代表单个元素*/
+                .map(function (m) {
+                    /*m是一个对象*/
+                    /*合并两个对象*/
+                    let ob = Object.assign({
+                        score: Math.random()
+                    }, m);
+                    /*作为新元素*/
+                    return ob;
+                })
+                /*排序*/
+                .sort(function (a, b) {
+                    return a.score - b.score;
+                })
+                /*截取数组*/
+                .slice(0, count)
+                /*遍历循环元素*/
+                .map(function (m) {
+                    /*新增一个被抽中的员工*/
+                    choosed[m.name] = 1;
+                    /*重新合并*/
+                    return m.name;
+                });
+            /*更新被抽中过的名单*/
+            localStorage.setItem('choosed', JSON.stringify(choosed));
+            return ret;
+        };
+
+        /*实例化vue*/
+        let vm = new Vue({
+            /*挂载*/
+            el: '#app',
+            /*vue的数据*/
+            data: {
+                /*默认的抽奖人数*/
+                selected: 1,
+                /*是否正在抽奖*/
+                running: 0,
+                fullState: "全屏",
+                /*抽奖步骤*/
+                status: ["抽奖", "停！", "继续"],
+                /*抽奖奖品和数量*/
+                /* 奖品名、级别、级别、图片、中奖人*/
+                prizes: prizes,
+                /*正在抽第几个奖*/
+                position: 0,
+                /*是否展示抽奖信息*/
+                showResult: false,
+            },
+            /*生命周期-挂载完毕*/
+            computed: {
+                /*奖品列表*/
+                prizesRverese: function () {
+                    let temp = [];
+                    for (let i = this.prizes.length - 1; i >= 0; i--) {
+                        temp.push(this.prizes[i])
+                    }
+                    return temp;
+                }
+            },
+            mounted() {
+                /*vue实例创建完毕，开始创建词云*/
+                createCanvas(this);
+                /*将layer作为全局对象*/
+                layui.use(["layer"], function () {
+                    window.layer = layui.layer;
+                });
+            },
+            methods: {
+                /*重置所有中奖记录
+                * */
+                reset: function () {
+                    /*如果不是待抽奖状态*/
+                    if (this.running != 0) {
+                        return;
+                    }
+                    let index = layer.confirm('确定要重置么？所有之前的抽奖历史将被清除！', function () {
+                        location.reload();
+                    });
+                },
+                toggle: function () {
+                    if (this.position >= this.prizes.length) {
+                        /*所有奖品抽完了，当前奖品等级0*/
+                        this.running = 0;
+                        layer.msg("所有奖品都抽完了！");
+                        return;
+                    }
+                    /*判断是否正在抽奖*/
+                    /*是否展示了抽奖结果*/
+                    if (this.showResult) {
+                        this.showResult = !this.showResult;
+                        /*进入待抽奖的状态*/
+                        this.running = 0;
+                        $('#main').removeClass('mask');
+                        return;
+                    }
+                    /*如果正在抽奖*/
+                    if (this.running == 1) {
+                        /*将词云的速度转换为正常速度*/
+                        TagCanvas.SetSpeed('myCanvas', speed());
+                        /*随机生成抽奖名单*/
+                        var ret = lottery(this.selected);
+                        /*如果所有人都被抽中了，提示无可抽奖人员*/
+                        if (ret.length === 0) {
+                            layer.msg("所有人都中奖了！");
+                            this.running = 0;
+                            return;
+                        } else {
+                            $('#main').addClass('mask');
+                            /*显示抽奖结果*/
+                            /*$('#result').find(".item2").text(ret[0]);
+                            $('#result').fadeIn();
+                            */
+                            let level = "";
+                            /*判断当前的奖品等级*/
+                            switch (this.prizes[this.position].level) {
+                                case 1:
+                                    level = "一等奖";
+                                    break;
+                                case 2:
+                                    level = "二等奖";
+                                    break;
+                                case 3:
+                                    level = "三等奖";
+                                    break;
+                                default:
+                            }
+                            /*中奖信息*/
+                            this.prizes[this.position].person = ret[0];
+                            /*重新加载人员名单*/
+                            /*移除词云*/
+                            $("#myCanvas").remove();
+                            /*重新创建词云*/
+                            createCanvas(this);
+                            /*记录中奖时间和名单到本地*/
+                            localStorage.setItem(new Date().toString(), ret[0]);
+                        }
+                        this.running = 2;
+                        /*进入中奖结果公式状态*/
+                    } else if (this.running == 2) {
+                        /*隐藏滤镜*/
+                        $('#main').removeClass('mask');
+                        /*进入待抽奖的状态*/
+                        this.running = 0;
+                        this.position++; //下一个待抽奖品
+                    } else {
+                        /*加快词云的旋转速度*/
+                        TagCanvas.SetSpeed('myCanvas', [5, 1]);
+                        /*进入抽奖的状态*/
+                        this.running = 1;
+                    }
+                },
+                /*全屏切换*/
+                toggleFullScreen: function () {
+                    /*如果不是待抽奖状态*/
+                    if (this.running != 0) {
+                        return;
+                    }
+                    /*是否处于全屏*/
+                    if (!document.fullscreenElement) {
+                        this.fullState = "正常";
+                        document.documentElement.requestFullscreen();
+                    } else {
+                        if (document.exitFullscreen) {
+                            this.fullState = "全屏";
+                            document.exitFullscreen();
+                        }
+                    }
+                },
+                /*显示中奖名单*/
+                showList: function () {
+                    /*如果正在抽奖*/
+                    if (this.running == 1) {
+                        return;
+                    }
+                    /*进入待抽奖的状态*/
+                    this.running = 0;
+                    if (this.showResult) {
+                        $('#main').removeClass('mask');
+                    } else {
+                        $('#main').addClass('mask');
+                    }
+                    /*改变显示的状态*/
+                    this.showResult = !this.showResult;
+                }
+            }
+        });
+    })();
+</script>
+</body>
+</html>
